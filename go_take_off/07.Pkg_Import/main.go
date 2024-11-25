@@ -2,13 +2,13 @@ package main
 
 import (
 	calcs "first/07.Pkg_Import/calcutils"
-	"first/07.Pkg_Import/dbutils"
+	cc "first/07.Pkg_Import/dbutils" //包取别名
 	"fmt"
 )
 
 func main() {
 
 	calcs.Calc()
-	dbutils.GetConn()
+	cc.GetConn()
 	fmt.Println("这是main函数执行")
 }
