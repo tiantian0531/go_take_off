@@ -1,7 +1,7 @@
 package main
 
 import (
-	"first/09.Slice_Oper/slicehelper"
+	helper "first/09.Slice_Oper/slicehelper"
 )
 
 func main() {
@@ -9,5 +9,5 @@ func main() {
 	// slicehelper.SliceDefine()
 	// slicehelper.SliceIteRate()
 	// slicehelper.SlicePrecautions()
-	slicehelper.SliceCopy()
+	helper.SliceCopy()
 }
