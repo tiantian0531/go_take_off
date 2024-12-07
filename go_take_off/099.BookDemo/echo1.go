@@ -6,10 +6,14 @@ import (
 )
 
 func echo1Tets() {
-	var s, semp string
-	for i := 0; i < len(os.Args); i++ {
-		s += semp + os.Args[i]
-		semp = " "
+
+	//for i := 0; i < len(os.Args); i++ {
+	//	s += semp + os.Args[i]
+	//	semp = " "
+	//}
+
+	for index, value := range os.Args {
+		fmt.Println("索引是", index, "值是", value)
 	}
-	fmt.Println(s)
+
 }
