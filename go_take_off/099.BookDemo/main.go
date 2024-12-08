@@ -4,19 +4,33 @@ import (
 	"fmt"
 )
 
+type integer int
+
 func main() {
-	fmt.Println("2121")
-	// echo1Tets()
-	a, b := returnTest(2, 3)
-	fmt.Println(a)
-	fmt.Println(b)
-}
-func returnTest(r1 int, r2 int) (num int, num2 int) {
 
-	num = r1 + r2
-	num2 = num + 1
+	var i integer = 20
+	i.print()
+	fmt.Println("\n =================")
+	fmt.Println(i)
 
-	fmt.Println(num)
-	fmt.Println(num2)
-	return
+	var c integer
+	fmt.Println(i)
+	(&c).print1()
+	fmt.Println("\n =================")
+	fmt.Println(i)
 }
+
+func (i *integer) print() {
+	*i = 21
+	fmt.Println(*i)
+}
+
+func (i integer) print1() {
+	i = 22
+	fmt.Println(i)
+}
+
+// func (i integer) String() string {
+// 	fmt.Println("12306")
+// 	return "2566"
+// }
