@@ -15,7 +15,7 @@ func main() {
 
 	var c integer
 	fmt.Println(i)
-	(&c).print1()
+	c.print1()
 	fmt.Println("\n =================")
 	fmt.Println(i)
 }

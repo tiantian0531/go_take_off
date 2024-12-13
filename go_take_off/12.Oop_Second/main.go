@@ -6,7 +6,17 @@ import (
 )
 
 func main() {
-	T3ReflectValue3()
+
+	var s Student
+	var b BInterface = &s
+
+	b.b()
+	// var iValue integer = 10
+	// var i Animal = &iValue
+
+	// i.SayHello()
+
+	// T3ReflectValue3()
 }
 func T1() {
 	var c *C = new(C)
