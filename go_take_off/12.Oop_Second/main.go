@@ -7,16 +7,27 @@ import (
 
 func main() {
 
-	var s Student
-	var b BInterface = &s
+	//多态
+	// var dog *Dog = new(Dog)
+	// Great(dog)
 
-	b.b()
 	// var iValue integer = 10
 	// var i Animal = &iValue
-
 	// i.SayHello()
 
 	// T3ReflectValue3()
+
+	var arr [3]Animal
+	arr[0] = Dog{Name: "天天"}
+	arr[1] = Cat{Name: "杰克"}
+	arr[2] = Dog{Name: "阿奇"}
+
+	fmt.Println(arr)
+	for _, v := range arr {
+		if v != nil {
+			v.SayHello()
+		}
+	}
 }
 func T1() {
 	var c *C = new(C)
@@ -121,4 +132,8 @@ func T3ReflectValue3() {
 
 	fmt.Println(*i)
 	fmt.Println(F1)
+}
+
+func Great(i Animal) {
+	i.SayHello()
 }
