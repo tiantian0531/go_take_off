@@ -6,23 +6,25 @@ import (
 	"sync/atomic"
 	"time"
 )
+
 var (
-	event sync.WaitGroup
-	lock sync.Mutex
-	totalNum int =0
-	totalNum1 int32 =0
-	rwLock sync.RWMutex
+	event     sync.WaitGroup
+	lock      sync.Mutex
+	totalNum  int   = 0
+	totalNum1 int32 = 0
+	rwLock    sync.RWMutex
 )
+
 func main() {
 	// MutlpleThreadOperOneData()
 	// MutlpleThreadOperOneDataAtomiclock()
 	MutlpleThreadOperOneDataRwLock()
 }
 
-
-func WaitGroupTest(){
+// 协程同步
+func WaitGroupTest() {
 	event.Add(1)
-	go func(){
+	go func() {
 		defer event.Done()
 		fmt.Println("协程")
 	}()
@@ -30,10 +32,11 @@ func WaitGroupTest(){
 	event.Wait()
 }
 
-func StartMutlple(){
+// 开启多个协程
+func StartMutlple() {
 	event.Add(5)
 	for i := 0; i < 5; i++ {
-		go func(n int){
+		go func(n int) {
 			defer event.Done()
 			fmt.Println(n)
 		}(i)
@@ -42,24 +45,24 @@ func StartMutlple(){
 	event.Wait()
 }
 
-
-func MutlpleThreadOperOneDataLock(){
+// 互斥锁
+func MutlpleThreadOperOneDataLock() {
 	event.Add(2)
-	go func()  {
-		defer event.Done()
-		lock.Lock()
-		for i := 0; i < 10000; i++ {			
-			totalNum +=i	
-		}
-		lock.Unlock()
-	}()
-	go func()  {
+	go func() {
 		defer event.Done()
 		lock.Lock()
 		for i := 0; i < 10000; i++ {
-		
-			totalNum -=i
-			
+			totalNum += i
+		}
+		lock.Unlock()
+	}()
+	go func() {
+		defer event.Done()
+		lock.Lock()
+		for i := 0; i < 10000; i++ {
+
+			totalNum -= i
+
 		}
 		lock.Unlock()
 	}()
@@ -68,20 +71,21 @@ func MutlpleThreadOperOneDataLock(){
 	fmt.Println(totalNum)
 }
 
-func MutlpleThreadOperOneDataAtomiclock(){
+// 原子锁
+func MutlpleThreadOperOneDataAtomiclock() {
 	event.Add(2)
-	go func()  {
-		defer event.Done()
-		for i := 1; i<= 100; i++ {		
-			atomic.AddInt32(&totalNum1,int32(i))	
-		}
-	}()
-	go func()  {
+	go func() {
 		defer event.Done()
 		for i := 1; i <= 100; i++ {
-		
-			atomic.AddInt32(&totalNum1,-int32(i))	
-			
+			atomic.AddInt32(&totalNum1, int32(i))
+		}
+	}()
+	go func() {
+		defer event.Done()
+		for i := 1; i <= 100; i++ {
+
+			atomic.AddInt32(&totalNum1, -int32(i))
+
 		}
 	}()
 	event.Wait()
@@ -89,34 +93,32 @@ func MutlpleThreadOperOneDataAtomiclock(){
 	fmt.Println(totalNum1)
 }
 
-
-func MutlpleThreadOperOneDataRwLock(){
+// 读写锁
+func MutlpleThreadOperOneDataRwLock() {
 	event.Add(200)
 
-		for i := 1; i<= 100; i++ {		
-			go func()  {
-				defer event.Done()
-				rwLock.RLock()
-				fmt.Println("读取数据")
-				time.Sleep(time.Second)
-				fmt.Println("读取数据成功")
-				rwLock.RUnlock()
-			}()
-			
-		}
+	for i := 1; i <= 100; i++ {
+		go func() {
+			defer event.Done()
+			rwLock.RLock()
+			fmt.Println("读取数据")
+			time.Sleep(time.Second)
+			fmt.Println("读取数据成功")
+			rwLock.RUnlock()
+		}()
 
-	
+	}
 
-		for i := 1; i <= 100; i++ {
-			go func()  {
-				defer event.Done()
-				rwLock.Lock()
-				fmt.Println("修改数据")
-				time.Sleep(time.Second*1)
-				fmt.Println("修改数据成功")
-				rwLock.Unlock()
-			}()
-		}
+	for i := 1; i <= 100; i++ {
+		go func() {
+			defer event.Done()
+			rwLock.Lock()
+			fmt.Println("修改数据")
+			time.Sleep(time.Second * 1)
+			fmt.Println("修改数据成功")
+			rwLock.Unlock()
+		}()
+	}
 
 	event.Wait()
 
