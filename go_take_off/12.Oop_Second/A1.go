@@ -8,7 +8,7 @@ type A struct {
 }
 
 type B struct {
-	A
+	A A 
 	NickName string
 }
 

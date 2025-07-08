@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -5,6 +6,7 @@ import (
 )
 
 func main() {
+	oophelper.CreateInstance()
 	oophelper.OopOper()
 	oophelper.TransmitInstance()
 

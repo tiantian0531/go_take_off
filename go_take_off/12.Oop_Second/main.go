@@ -1,21 +1,46 @@
+/*
+ * @Author: yu_xianglong yu_xianglong@qq.com
+ * @Date: 2024-12-17 10:08:30
+ * @LastEditors: yu_xianglong yu_xianglong@qq.com
+ * @LastEditTime: 2025-07-08 09:19:10
+ * @FilePath: \go_take_off.git\go_take_off\12.Oop_Second\main.go
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 package main
 
 import (
+	"encoding/json"
+	"first/12.Oop_Second/model"
 	"fmt"
 	"reflect"
 )
 
 func main() {
 
+ user:=model.NewUser("sa",18)
+
+ user.GetInfo()
+fmt.Printf("信息是 %v",user)
+
+	t1 := B{
+		A:A{Name: "xz", Age: 12},
+		NickName: "hha",
+	}
+
+	 js,_:= json.MarshalIndent(t1, "", "  ")
+
+ 	fmt.Println("json",js)
+	// // 输出 JSON 字符串
+ 	fmt.Println(string(js))
 	//多态
-	// var dog *Dog = new(Dog)
-	// Great(dog)
+	 var dog *Dog = new(Dog)
+	 Great(dog)
 
-	// var iValue integer = 10
-	// var i Animal = &iValue
-	// i.SayHello()
+	 var iValue integer = 10
+	 var i Animal = &iValue
+	 i.SayHello()
 
-	// T3ReflectValue3()
+	 T3ReflectValue3()
 
 	var arr [3]Animal
 	arr[0] = Dog{Name: "天天"}
@@ -39,10 +64,10 @@ func T1() {
 	fmt.Println("=================")
 	var b *B = new(B)
 
-	b.Name = "管理员"
-	b.Age = 19
-	b.NickName = "黄光头"
-	b.Hello()
+	// b.Name = "管理员"
+	// b.Age = 19
+	// b.NickName = "黄光头"
+	// b.Hello()
 	fmt.Println(*b)
 }
 
