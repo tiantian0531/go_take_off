@@ -107,6 +107,10 @@ func MonitorConfigFile() {
 	})
 
 	fmt.Println("正在监听....")
+	// time.After(5*time.Second)//5秒退出
+	// for {
+
+	// } //使用for阻塞
 	select {}
 }
 
