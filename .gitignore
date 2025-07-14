@@ -3,3 +3,4 @@ go_take_off/.idea/go_take_off.iml
 go_take_off/.idea/modules.xml
 go_take_off/.idea/vcs.xml
 go_take_off/.idea/watcherTasks.xml
+*.exe
