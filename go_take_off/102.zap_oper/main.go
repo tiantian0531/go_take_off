@@ -216,4 +216,5 @@ func SplitLogger() {
 		logger.Sugar().Infof("这是 %d log", i)
 		time.Sleep(time.Second)
 	}
+
 }
