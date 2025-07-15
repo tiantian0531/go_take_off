@@ -5,10 +5,14 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
 func main() {
+
+	result, err := strconv.ParseBool("false")
+	fmt.Println(result, err)
 	//Spt()
 	//TimeOper()
 	//TimestampOper()
