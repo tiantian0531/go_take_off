@@ -5,20 +5,44 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
+	"sync"
 	"time"
 )
 
+func t2(ch chan int) {
+	v := <-ch
+	fmt.Println("接收值为", v)
+}
+
+var wg = sync.WaitGroup{}
+
+func t1(i int) {
+	fmt.Println(i)
+	defer wg.Done()
+}
+
 func main() {
 
-	result, err := strconv.ParseBool("false")
-	fmt.Println(result, err)
+	c := make(chan int)
+	go t2(c)
+	c <- 10
+	fmt.Println(c)
+	time.Sleep(time.Second * 1)
+	//for i := 0; i < 5; i++ {
+	//	wg.Add(1)
+	//	go t1(i)
+	//}
+	//wg.Wait()
+	//fmt.Println("主线程")
+
+	//result, err := strconv.ParseBool("false")
+	//fmt.Println(result, err)
 	//Spt()
 	//TimeOper()
 	//TimestampOper()
 	//LoggerOper()
 	//FileOper()
-	FileOper()
+	//FileOper()
 }
 
 func Fpf() {

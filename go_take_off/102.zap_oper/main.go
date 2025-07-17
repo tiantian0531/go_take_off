@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -11,13 +11,13 @@ import (
 )
 
 func main() {
-	// dev()
-	// test()
-	// prod()
+	//dev()
+	//test()
+	//prod()
 
-	// SetLoggerLevel()
+	//SetLoggerLevel()
 	// SetLoggerTimeFormat()
-	// SetSugar()
+	//SetSugar()
 	// SetStructLogger()
 
 	//全局日志
@@ -25,7 +25,7 @@ func main() {
 	//globalLogger()
 
 	//日志双写
-	//LoggerWriteConsoleAndFile()
+	//WriteLoggerToConsoleAndFile()
 
 	// LoggerWriteConsoleAndFile_2()
 	SplitLogger()
@@ -34,9 +34,9 @@ func main() {
 func dev() {
 
 	logger, _ := zap.NewDevelopment()
-	logger.Info("dev this is info")
-	logger.Warn("dev this is warn")
-	logger.Error("dev this is error")
+	logger.Info("dev this is info", zap.String("info", "dev this is info"))
+	logger.Warn("dev this is warn", zap.Int("warn", 110))
+	logger.Error("dev this is error", zap.Duration("duration", time.Second))
 	// logger.Panic("dev this is panic") 直接挂
 }
 
@@ -56,13 +56,17 @@ func prod() {
 // 设置日志级别
 func SetLoggerLevel() {
 
-	cfg := zap.NewDevelopmentConfig()
+	cfg := zap.NewProductionConfig()
 	cfg.Level = zap.NewAtomicLevelAt(zap.WarnLevel)
+	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	logger, _ := cfg.Build()
-	logger.Debug("spec level Debug")
-	logger.Info("spec level Info")
-	logger.Warn("spec level Warn")
-	logger.Error("spec level Error")
+	logger.Debug("这是[Debug]日志")
+	logger.Info("这是[Info]日志")
+	logger.Warn("这是[Warn]日志",
+		zap.String("Key1", "Value1"),
+		zap.Int("Key2", 10086),
+		zap.Duration("Duration", time.Second*100))
+	logger.Error("这是[Error]日志")
 }
 
 // 日期格式化 必须  2006-01-02 15:04:05 设计约定
@@ -81,9 +85,9 @@ func SetSugar() {
 
 	logger, _ := zap.NewDevelopment()
 	sl := logger.Sugar()
-	sl.Info("dev this is info")
-	sl.Warn("dev this is warn")
-	sl.Error("dev this is error")
+	defer logger.Sync() // 在程序退出时刷新缓冲区
+	sl.Infof("开发输出Info日志是: %d \n", 9999)
+	sl.Warnln("开发输出Warn日志是:", "测试")
 }
 
 func SetStructLogger() {
@@ -96,31 +100,26 @@ func SetStructLogger() {
 }
 
 // 初始化全局日志
-func initLogger() {
-	// 使用 zap 的 NewDevelopmentConfig 快速配置
+func initGlobalLogger() {
 	cfg := zap.NewDevelopmentConfig()
-	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05") // 替换时间格式化方式
-	// 创建 Logger
+	// 替换时间格式化方式
+	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	logger, _ := cfg.Build()
 	zap.ReplaceGlobals(logger)
 }
 
 func globalLogger() {
-	zap.L().Info("dev this is info")
-	zap.L().Warn("dev this is warn")
-	zap.L().Error("dev this is error")
-	zap.S().Infof("dev this is info %s", "xxx")
-	zap.S().Warnf("dev this is warn %s", "xxx")
-	zap.S().Errorf("dev this is error %s", "xxx")
+	zap.L().Debug("全局标准日志")
+	zap.S().Debug("Sugar日志")
 }
 
 // 日志双写（写控制台、写文件）第一种方法
-func LoggerWriteConsoleAndFile() {
+func WriteLoggerToConsoleAndFile() {
 	cfg := zap.NewDevelopmentConfig()
 	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 
 	// 输出console
-	consoleWrite := zapcore.NewCore(
+	conWrite := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(cfg.EncoderConfig),
 		os.Stdout,
 		zap.InfoLevel,
@@ -134,11 +133,10 @@ func LoggerWriteConsoleAndFile() {
 		zap.InfoLevel,
 	)
 
-	core := zapcore.NewTee(consoleWrite, fileWrite)
-
+	// 合并
+	core := zapcore.NewTee(conWrite, fileWrite)
 	logger := zap.New(core, zap.AddCaller())
-
-	logger.Info("xxxxx")
+	logger.Info("这个日志将会输出在控制台和写入文件中")
 }
 
 // 文件打开问题
@@ -175,26 +173,37 @@ func LoggerWriteConsoleAndFile_2() {
 
 // 日志切片
 
-type MyWrite struct {
+type CustomizeWrite struct {
 	file        *os.File
 	mutex       sync.Mutex
 	currentTime string
 }
 
-func (w *MyWrite) Write(b []byte) (length int, err error) {
+func (w *CustomizeWrite) Write(b []byte) (length int, err error) {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 
+	// 获取当前时间并且对比写入时时间是否相同,如果相同直接写入
 	now := time.Now().Format("2001-01-02 15-04-05")
-	if now == w.currentTime {
+	if now == w.currentTime && w.file != nil {
 		return w.file.Write(b)
 	}
+
 	if w.file != nil {
 		w.file.Close()
+		w.file = nil
 	}
 
-	name := fmt.Sprintf("logs/%s.log", now)
-	file, _ := os.OpenFile(name, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModeAppend.Perm())
+	// 创建目录
+	if err := os.MkdirAll("./logs", 0755); err != nil {
+		return 0, err
+	}
+
+	name := filepath.Join("logs", now+".log")
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModeAppend.Perm())
+	if err != nil {
+		return 0, err
+	}
 	w.file = file
 	w.currentTime = now
 	return file.Write(b)
@@ -206,15 +215,13 @@ func SplitLogger() {
 
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(cfg.EncoderConfig),
-		zapcore.NewMultiWriteSyncer(os.Stdout, zapcore.AddSync(&MyWrite{})),
+		zapcore.NewMultiWriteSyncer(os.Stdout, zapcore.AddSync(&CustomizeWrite{})),
 		zap.InfoLevel,
 	)
-
 	logger := zap.New(core, zap.AddCaller())
 
 	for i := 0; i < 10; i++ {
 		logger.Sugar().Infof("这是 %d log", i)
 		time.Sleep(time.Second)
 	}
-
 }

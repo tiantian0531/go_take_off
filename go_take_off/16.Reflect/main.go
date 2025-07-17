@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	reflect03()
+
 }
 
 func Reflect01() {

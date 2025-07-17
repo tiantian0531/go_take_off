@@ -6,43 +6,60 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	_ "github.com/spf13/viper/remote"
 )
 
 type Cfg struct {
 	Addr string
-	No   string
+	No   int
 }
 
 func main() {
-	// WriteConfigFile()
+	//WriteBasicUse()
+	//WriteConfigFile()
 	//ReadConfigFile()
 	//MonitorConfigFile()
 	// AutoEnv()
-	ReadCmdLine()
+	//ReadCmdLine()
+	ReadRemoteFile()
 }
 
 // 基本写入读取操作
 func WriteBasicUse() {
 
-	viper.SetDefault("name", "yuxl")
-	viper.Set("age", 26)
+	//viper.SetDefault("ip", "192.168.80.51")
+	//viper.Set("port", 10086)
+	//
+	//ip := viper.GetString("ip")
+	//port := viper.GetInt("port")
+	//
+	//fmt.Println("配置Ip是：", ip)
+	//fmt.Println("配置端口是：", port)
+	//
+	//viper.SetDefault("ip", "192.168.80.59")
+	//fmt.Println("重新配置端口是：", viper.GetString("ip"))
+}
 
-	name := viper.GetString("name")
-	age := viper.GetInt("age")
-	fmt.Println("配置名字是：", name)
-	fmt.Println("配置年龄是：", age)
+func UsePriority() {
+	viper.SetDefault("key", "yuxl")
+	var key string
+	pflag.StringVar(&key, "key", "", "程序运行的key")
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
 
-	viper.SetDefault("age", 18)
-	fmt.Println("配置年龄是：", viper.GetInt("age"))
+	fmt.Println("配置key是：", viper.GetString("key"))
 }
 
 // 将配置写入文件
 func WriteConfigFile() {
-
-	viper.Set("info", Cfg{Addr: "湖北武汉", No: "001"})
-	viper.Set("name", "yuxl")
+	// 设置结构体配置
+	viper.Set("info", Cfg{Addr: "湖北武汉", No: 1})
+	// 单独设置一个名字
+	viper.Set("name", "sa")
+	// 设置配置类型
 	viper.SetConfigType("json")
-	// 文件存在就不写入
+
+	// 写入json格式,文件存在就不写入
 	err := viper.SafeWriteConfigAs("config.json")
 
 	if err != nil {
@@ -52,7 +69,7 @@ func WriteConfigFile() {
 	}
 
 	viper.SetConfigType("yaml")
-	// 文件存在就不写入
+	// 文件yaml存在就不写入
 	yamlErr := viper.SafeWriteConfigAs("config.yaml")
 	if yamlErr != nil {
 		fmt.Println("写入yaml配置错误", yamlErr)
@@ -61,7 +78,7 @@ func WriteConfigFile() {
 	}
 
 	viper.SetConfigType("toml")
-	// 文件存在就不写入
+	// 文件toml存在就不写入
 	tomlErr := viper.SafeWriteConfigAs("config.toml")
 	if tomlErr != nil {
 		fmt.Println("写入tomlErr配置错误", tomlErr)
@@ -90,7 +107,6 @@ func ReadConfigFile() {
 
 // 监听配置
 func MonitorConfigFile() {
-
 	// 先读取旧的值
 	ov := viper.New()
 	ov.SetConfigType("json")
@@ -145,5 +161,19 @@ func ReadCmdLine() {
 	// pflag 等于前面加--
 	//go run main.go --ip 192.168.0.1 --port 5020
 	// go run main.go -h        查看所有参数
+
+}
+
+func ReadRemoteFile() {
+
+	// 添加 Consul 作为远程配置源
+	viper.AddSecureRemoteProvider("consul", "consul.test.shijizhongyun.com:8500", "/bsi/ant", "16bf2708-f93e-7278-b29f-c542699480c1")
+	viper.SetConfigType("yaml") // 设置配置文件类型
+
+	// 读取远程配置
+	err := viper.ReadRemoteConfig()
+	if err != nil {
+		panic(err)
+	}
 
 }
