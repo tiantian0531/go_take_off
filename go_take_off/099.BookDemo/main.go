@@ -21,28 +21,27 @@ func t1(i int) {
 	defer wg.Done()
 }
 
-func main() {
-
-	c := make(chan int)
-	go t2(c)
-	c <- 10
-	fmt.Println(c)
-	time.Sleep(time.Second * 1)
-	//for i := 0; i < 5; i++ {
-	//	wg.Add(1)
-	//	go t1(i)
+func f2(ch <-chan int) {
+	//for {
+	//	v, ok := <-ch
+	//	if !ok {
+	//		fmt.Println("通道已关闭")
+	//		break
+	//	}
+	//	fmt.Printf("v:%#v ok:%#v\n", v, ok)
 	//}
-	//wg.Wait()
-	//fmt.Println("主线程")
 
-	//result, err := strconv.ParseBool("false")
-	//fmt.Println(result, err)
-	//Spt()
-	//TimeOper()
-	//TimestampOper()
-	//LoggerOper()
-	//FileOper()
-	//FileOper()
+	for v := range ch {
+		fmt.Printf("v:%#v \n", v)
+	}
+}
+
+func main() {
+	ch := make(chan int, 2)
+	ch <- 1
+	ch <- 2
+	close(ch)
+	f2(ch)
 }
 
 func Fpf() {
